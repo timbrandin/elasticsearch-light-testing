@@ -68,4 +68,11 @@ path:
     data: /opt/elasticsearch/volatile/data
     logs: /opt/elasticsearch/volatile/logs
 
+# Disable X-Pack:
+xpack.security.enabled: false
+xpack.watcher.enabled: false
+xpack.monitoring.enabled: false
+xpack.graph.enabled: false
+xpack.ml.enabled: false
+
 
