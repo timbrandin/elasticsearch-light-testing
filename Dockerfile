@@ -1,7 +1,7 @@
 FROM fedora:37
 LABEL maintainer "Tim Brandin <tim@relate-app.com>"
 
-ENV ES_VERSION=7.17.2
+ENV ES_VERSION=8.19.4
 # https://www.elastic.co/downloads/elasticsearch (check available architectures)
 ENV ARCH=linux-aarch64
 
