@@ -2,8 +2,24 @@ FROM fedora:37
 LABEL maintainer "Tim Brandin <tim@relate-app.com>"
 
 ENV ES_VERSION=8.19.4
-# https://www.elastic.co/downloads/elasticsearch (check available architectures)
-ENV ARCH=linux-aarch64
+
+# ARG for build-time architecture selection
+# This will be set automatically by Docker buildx based on the target platform
+ARG TARGETARCH
+
+# Map Docker's TARGETARCH to Elasticsearch's architecture naming
+# arm64 -> linux-aarch64
+# amd64 -> linux-x86_64
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        echo "linux-aarch64" > /tmp/es_arch; \
+    elif [ "$TARGETARCH" = "amd64" ]; then \
+        echo "linux-x86_64" > /tmp/es_arch; \
+    else \
+        echo "Unsupported architecture: $TARGETARCH" && exit 1; \
+    fi
+
+# Read the architecture for use in subsequent commands
+ENV ARCH_FILE=/tmp/es_arch
 
 USER root
 
@@ -15,6 +31,7 @@ RUN \
 
 # Download and install Elasticsearch
 RUN \
+	ARCH=$(cat /tmp/es_arch) && \
 	mkdir -p /opt/elasticsearch && \
 	cd /opt/elasticsearch && \
 	curl -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-$ES_VERSION-$ARCH.tar.gz && \
@@ -24,7 +41,8 @@ RUN \
 	rm -f elasticsearch-${ES_VERSION}-${ARCH}.tar.gz && \
 	useradd elasticsearch && \
 	mkdir -p /opt/elasticsearch/volatile/data /opt/elasticsearch/volatile/logs && \
-	chown -R elasticsearch:elasticsearch /opt/elasticsearch
+	chown -R elasticsearch:elasticsearch /opt/elasticsearch && \
+	rm /tmp/es_arch
 
 COPY log4j2.properties /opt/elasticsearch/config/
 COPY elasticsearch.yml /opt/elasticsearch/config/

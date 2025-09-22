@@ -44,7 +44,39 @@ Get rid of it after testing:
 
 Registered on DockerHub: https://hub.docker.com/r/timbrandin/elasticsearch-light-testing/ 
 
-Build it locally:
+## Building the Image
+
+### Build locally for testing (single architecture)
+
+Use the provided script to build for your local architecture:
+
+```bash
+./build-local.sh
+```
+
+This creates an image tagged as `timbrandin/elasticsearch-light-testing:8.19.4-local` optimized for your current architecture.
+
+### Build and push multi-architecture image
+
+To build and push a multi-architecture image that works on both AMD64 (x86_64) and ARM64 (Apple Silicon):
+
+```bash
+# Make sure you're logged in to Docker Hub
+docker login
+
+# Build and push multi-arch image
+./build-multiarch.sh
+```
+
+This will create and push:
+- `timbrandin/elasticsearch-light-testing:8.19.4` - supports both linux/amd64 and linux/arm64
+- `timbrandin/elasticsearch-light-testing:latest` - same multi-arch support
+
+The multi-architecture image automatically selects the correct Elasticsearch binary based on the platform:
+- `linux/amd64` (x86_64) - for CI runners, Intel/AMD machines
+- `linux/arm64` (aarch64) - for Apple Silicon Macs
+
+### Manual build (single architecture)
 
 > docker build -t customtest .
 
